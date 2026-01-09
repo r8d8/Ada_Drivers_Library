@@ -434,7 +434,7 @@ package body STM32.SDMMC is
          Data_Length        => UInt25 (Buf'Length * 4),
          Data_Block_Size    => Block_Size,
          Transfer_Direction => Read,
-         Transfer_Mode      => 0,  -- Block transfer mode
+         Transfer_Mode      => HAL.Block_Drivers.Block,
          DPSM               => True,
          DMA_Enabled        => False);
 
@@ -480,17 +480,17 @@ package body STM32.SDMMC is
          end if;
       end loop;
 
-      if This.Periph.STAR.DTIMEOUT then
+      if This.Periph.STA.DTIMEOUT then
          This.Periph.ICR.DTIMEOUTC := True;
 
          Status := Timeout_Error;
 
-      elsif This.Periph.STAR.DCRCFAIL then
+      elsif This.Periph.STA.DCRCFAIL then
          This.Periph.ICR.DCRCFAILC := True;
 
          Status := CRC_Check_Fail;
 
-      elsif This.Periph.STAR.RXOVERR then
+      elsif This.Periph.STA.RXOVERR then
          This.Periph.ICR.RXOVERRC := True;
 
          Status := Rx_Overrun;
@@ -520,10 +520,10 @@ package body STM32.SDMMC is
       W0, W1, W2, W3 : out UInt32)
    is
    begin
-      W0 := UInt32 (This.Periph.RESP1R);
-      W1 := UInt32 (This.Periph.RESP2R);
-      W2 := UInt32 (This.Periph.RESP3R);
-      W3 := UInt32 (This.Periph.RESP4R);
+      W0 := This.Periph.RESP1;
+      W1 := This.Periph.RESP2;
+      W2 := This.Periph.RESP3;
+      W3 := This.Periph.RESP4;
    end Read_Rsp136;
 
    --------------------
@@ -636,7 +636,7 @@ package body STM32.SDMMC is
    is
       Start : constant Time := Clock;
    begin
-      while not Controller.Periph.STAR.CMDSENT loop
+      while not Controller.Periph.STA.CMDSENT loop
          if Clock - Start > Milliseconds (1000) then
             return Timeout_Error;
          end if;
@@ -659,9 +659,9 @@ package body STM32.SDMMC is
       Timeout : Boolean := False;
       R1      : UInt32;
    begin
-      while not Controller.Periph.STAR.CCRCFAIL
-        and then not Controller.Periph.STAR.CMDREND
-        and then not Controller.Periph.STAR.CTIMEOUT
+      while not Controller.Periph.STA.CCRCFAIL
+        and then not Controller.Periph.STA.CMDREND
+        and then not Controller.Periph.STA.CTIMEOUT
       loop
          if Clock - Start > Milliseconds (1000) then
             Timeout := True;
@@ -670,20 +670,20 @@ package body STM32.SDMMC is
          end if;
       end loop;
 
-      if Timeout or else Controller.Periph.STAR.CTIMEOUT then
+      if Timeout or else Controller.Periph.STA.CTIMEOUT then
          --  Card is not v2.0 compliant or card does not support the set
          --  voltage range
          Controller.Periph.ICR.CTIMEOUTC := True;
 
          return Timeout_Error;
 
-      elsif Controller.Periph.STAR.CCRCFAIL then
+      elsif Controller.Periph.STA.CCRCFAIL then
          Controller.Periph.ICR.CCRCFAILC := True;
 
          return CRC_Check_Fail;
       end if;
 
-      if SD_Command (Controller.Periph.RESPCMDR.RESPCMD) /=
+      if SD_Command (Controller.Periph.RESPCMD.RESPCMD) /=
         Command_Index
       then
          return Illegal_Cmd;
@@ -748,21 +748,21 @@ package body STM32.SDMMC is
      (Controller : in out SDMMC_Controller) return SD_Error
    is
    begin
-      while not Controller.Periph.STAR.CCRCFAIL
-        and then not Controller.Periph.STAR.CMDREND
-        and then not Controller.Periph.STAR.CTIMEOUT
+      while not Controller.Periph.STA.CCRCFAIL
+        and then not Controller.Periph.STA.CMDREND
+        and then not Controller.Periph.STA.CTIMEOUT
       loop
          null;
       end loop;
 
-      if Controller.Periph.STAR.CTIMEOUT then
+      if Controller.Periph.STA.CTIMEOUT then
          --  Card is not v2.0 compliant or card does not support the set
          --  voltage range
          Controller.Periph.ICR.CTIMEOUTC := True;
 
          return Timeout_Error;
 
-      elsif Controller.Periph.STAR.CCRCFAIL then
+      elsif Controller.Periph.STA.CCRCFAIL then
          Controller.Periph.ICR.CCRCFAILC := True;
 
          return CRC_Check_Fail;
@@ -781,14 +781,14 @@ package body STM32.SDMMC is
      (Controller : in out SDMMC_Controller) return SD_Error
    is
    begin
-      while not Controller.Periph.STAR.CCRCFAIL
-        and then not Controller.Periph.STAR.CMDREND
-        and then not Controller.Periph.STAR.CTIMEOUT
+      while not Controller.Periph.STA.CCRCFAIL
+        and then not Controller.Periph.STA.CMDREND
+        and then not Controller.Periph.STA.CTIMEOUT
       loop
          null;
       end loop;
 
-      if Controller.Periph.STAR.CTIMEOUT then
+      if Controller.Periph.STA.CTIMEOUT then
          --  Card is not v2.0 compliant or card does not support the set
          --  voltage range
          Controller.Periph.ICR.CTIMEOUTC := True;
@@ -812,27 +812,27 @@ package body STM32.SDMMC is
    is
       Response : UInt32;
    begin
-      while not Controller.Periph.STAR.CCRCFAIL
-        and then not Controller.Periph.STAR.CMDREND
-        and then not Controller.Periph.STAR.CTIMEOUT
+      while not Controller.Periph.STA.CCRCFAIL
+        and then not Controller.Periph.STA.CMDREND
+        and then not Controller.Periph.STA.CTIMEOUT
       loop
          null;
       end loop;
 
-      if Controller.Periph.STAR.CTIMEOUT then
+      if Controller.Periph.STA.CTIMEOUT then
          --  Card is not v2.0 compliant or card does not support the set
          --  voltage range
          Controller.Periph.ICR.CTIMEOUTC := True;
 
          return Timeout_Error;
 
-      elsif Controller.Periph.STAR.CCRCFAIL then
+      elsif Controller.Periph.STA.CCRCFAIL then
          Controller.Periph.ICR.CCRCFAILC := True;
 
          return CRC_Check_Fail;
       end if;
 
-      if SD_Command (Controller.Periph.RESPCMDR.RESPCMD) /=
+      if SD_Command (Controller.Periph.RESPCMD.RESPCMD) /=
         Command_Index
       then
          return Illegal_Cmd;
@@ -869,9 +869,9 @@ package body STM32.SDMMC is
       Start : constant Time := Clock;
       Timeout : Boolean := False;
    begin
-      while not Controller.Periph.STAR.CCRCFAIL
-        and then not Controller.Periph.STAR.CMDREND
-        and then not Controller.Periph.STAR.CTIMEOUT
+      while not Controller.Periph.STA.CCRCFAIL
+        and then not Controller.Periph.STA.CMDREND
+        and then not Controller.Periph.STA.CTIMEOUT
       loop
          if Clock - Start > Milliseconds (1000) then
             Timeout := True;
@@ -880,19 +880,19 @@ package body STM32.SDMMC is
          end if;
       end loop;
 
-      if Timeout or else Controller.Periph.STAR.CTIMEOUT then
+      if Timeout or else Controller.Periph.STA.CTIMEOUT then
          --  Card is not v2.0 compliant or card does not support the set
          --  voltage range
          Controller.Periph.ICR.CTIMEOUTC := True;
 
          return Timeout_Error;
 
-      elsif Controller.Periph.STAR.CCRCFAIL then
+      elsif Controller.Periph.STA.CCRCFAIL then
          Controller.Periph.ICR.CCRCFAILC := True;
 
          return CRC_Check_Fail;
 
-      elsif Controller.Periph.STAR.CMDREND then
+      elsif Controller.Periph.STA.CMDREND then
          Controller.Periph.ICR.CMDRENDC := True;
 
          return OK;
@@ -1137,7 +1137,7 @@ package body STM32.SDMMC is
          Data_Length        => Data'Length,
          Data_Block_Size    => 9,  -- Block_512B = 9 in H7
          Transfer_Direction => Read,
-         Transfer_Mode      => 0,  -- Block transfer mode
+         Transfer_Mode      => HAL.Block_Drivers.Block,
          DPSM               => True,
          DMA_Enabled        => False);
 
@@ -1155,12 +1155,12 @@ package body STM32.SDMMC is
 
       if N_Blocks > 1 then
          --  Poll on SDMMC flags
-         while not This.Periph.STAR.RXOVERR
-           and then not This.Periph.STAR.DCRCFAIL
-           and then not This.Periph.STAR.DTIMEOUT
-           and then not This.Periph.STAR.DATAEND
+         while not This.Periph.STA.RXOVERR
+           and then not This.Periph.STA.DCRCFAIL
+           and then not This.Periph.STA.DTIMEOUT
+           and then not This.Periph.STA.DATAEND
          loop
-            if This.Periph.STAR.RXFIFOHF then
+            if This.Periph.STA.RXFIFOHF then
                for J in 1 .. 8 loop
                   Data (Idx .. Idx + 3) :=
                     To_Data (Read_FIFO (This));
@@ -1171,12 +1171,12 @@ package body STM32.SDMMC is
 
       else
          --  Poll on SDMMC flags
-         while not This.Periph.STAR.RXOVERR
-           and then not This.Periph.STAR.DCRCFAIL
-           and then not This.Periph.STAR.DTIMEOUT
-           and then not This.Periph.STAR.DBCKEND
+         while not This.Periph.STA.RXOVERR
+           and then not This.Periph.STA.DCRCFAIL
+           and then not This.Periph.STA.DTIMEOUT
+           and then not This.Periph.STA.DBCKEND
          loop
-            if This.Periph.STAR.RXFIFOHF then
+            if This.Periph.STA.RXFIFOHF then
                for J in 1 .. 8 loop
                   Data (Idx .. Idx + 3) :=
                     To_Data (Read_FIFO (This));
@@ -1186,15 +1186,15 @@ package body STM32.SDMMC is
          end loop;
       end if;
 
-      if N_Blocks > 1 and then This.Periph.STAR.DATAEND then
+      if N_Blocks > 1 and then This.Periph.STA.DATAEND then
          Err := Stop_Transfer (This);
       end if;
 
-      if This.Periph.STAR.DTIMEOUT then
+      if This.Periph.STA.DTIMEOUT then
          This.Periph.ICR.DTIMEOUTC := True;
          return Timeout_Error;
 
-      elsif This.Periph.STAR.DCRCFAIL then
+      elsif This.Periph.STA.DCRCFAIL then
          This.Periph.ICR.DCRCFAILC := True;
          return CRC_Check_Fail;
 
@@ -1273,7 +1273,7 @@ package body STM32.SDMMC is
          Data_Length        => UInt25 (N_Blocks) * 512,
          Data_Block_Size    => 9,  -- Block_512B = 9 in H7
          Transfer_Direction => Read,
-         Transfer_Mode      => 0,  -- Block transfer mode
+         Transfer_Mode      => HAL.Block_Drivers.Block,
          DPSM               => True,
          DMA_Enabled        => True);
 
@@ -1395,7 +1395,7 @@ package body STM32.SDMMC is
          Data_Length        => UInt25 (N_Blocks) * 512,
          Data_Block_Size    => 9,  -- Block_512B = 9 in H7
          Transfer_Direction => Write,
-         Transfer_Mode      => 0,  -- Block transfer mode
+         Transfer_Mode      => HAL.Block_Drivers.Block,
          DPSM               => True,
          DMA_Enabled        => True);
 
@@ -1414,11 +1414,11 @@ package body STM32.SDMMC is
      (This : in out SDMMC_Controller) return SD_Error
    is
    begin
-      if This.Periph.STAR.DTIMEOUT then
+      if This.Periph.STA.DTIMEOUT then
          This.Periph.ICR.DTIMEOUTC := True;
          return Timeout_Error;
 
-      elsif This.Periph.STAR.DCRCFAIL then
+      elsif This.Periph.STA.DCRCFAIL then
          This.Periph.ICR.DCRCFAILC := True; -- clear
          return CRC_Check_Fail;
 

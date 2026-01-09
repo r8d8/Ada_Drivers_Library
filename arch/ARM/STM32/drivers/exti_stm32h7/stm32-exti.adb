@@ -1,6 +1,6 @@
 ------------------------------------------------------------------------------
 --                                                                          --
---                  Copyright (C) 2015-2017, AdaCore                        --
+--                    Copyright (C) 2015, AdaCore                           --
 --                                                                          --
 --  Redistribution and use in source and binary forms, with or without      --
 --  modification, are permitted provided that the following conditions are  --
@@ -42,104 +42,94 @@
 --  This file provides register definitions for the STM32F4 (ARM Cortex M4F)
 --  microcontrollers from ST Microelectronics.
 
-with STM32_SVD.EXTI;   use STM32_SVD.EXTI;
-with STM32_SVD.SYSCFG; use STM32_SVD.SYSCFG;
+with STM32_SVD.EXTI; use STM32_SVD.EXTI;
 
-with STM32.EXTI;
+package body STM32.EXTI is
 
-with STM32.Device;     use STM32.Device;
+   -------------------------------
+   -- Enable_External_Interrupt --
+   -------------------------------
 
-package body STM32.SYSCFG is
-
-   subtype GPIO_Pin_Index is Natural range 0 .. 15;
-
-   procedure Connect_External_Interrupt
-     (Port : GPIO_Port;
-      Pin  : GPIO_Pin_Index);
-
-   --------------------------------
-   -- Connect_External_Interrupt --
-   --------------------------------
-
-   procedure Connect_External_Interrupt
-     (Port : GPIO_Port;
-      Pin  : GPIO_Pin_Index)
+   procedure Enable_External_Interrupt
+     (Line    : External_Line_Number;
+      Trigger : Interrupt_Triggers)
    is
-      Port_Id  : constant UInt4 := GPIO_Port_Representation (Port);
+      Index : constant Natural := External_Line_Number'Pos (Line);
    begin
-
-      --  Finally we assign the port 'number' to the EXTI_n value within the
-      --  control register. We depend upon the Port enumerals' underlying
-      --  numeric representation values matching what the hardware expects,
-      --  that is, the values 0 .. n-1, which we get automatically unless
-      --  overridden.
-      case Pin is
-         when 0 .. 3 =>
-            SYSCFG_Periph.EXTICR1.EXTI.Arr (Pin) := STM32_SVD.UInt4 (Port_Id);
-         when 4 .. 7 =>
-            SYSCFG_Periph.EXTICR2.EXTI.Arr (Pin) := STM32_SVD.UInt4 (Port_Id);
-         when 8 .. 11 =>
-            SYSCFG_Periph.EXTICR3.EXTI.Arr (Pin) := STM32_SVD.UInt4 (Port_Id);
-         when 12 .. 15 =>
-            SYSCFG_Periph.EXTICR4.EXTI.Arr (Pin) := STM32_SVD.UInt4 (Port_Id);
-      end case;
-   end Connect_External_Interrupt;
+      EXTI_Periph.CPUIMR1.Arr (Index) := True;
+      EXTI_Periph.RTSR1.TR.Arr (Index) :=
+        Trigger in Interrupt_Rising_Edge  | Interrupt_Rising_Falling_Edge;
+      EXTI_Periph.FTSR1.TR.Arr (Index) :=
+        Trigger in Interrupt_Falling_Edge | Interrupt_Rising_Falling_Edge;
+   end Enable_External_Interrupt;
 
    --------------------------------
-   -- Connect_External_Interrupt --
+   -- Disable_External_Interrupt --
    --------------------------------
 
-   procedure Connect_External_Interrupt
-     (Port : GPIO_Port;
-      Pin  : GPIO_Pin)
+   procedure Disable_External_Interrupt (Line : External_Line_Number) is
+      Index : constant Natural := External_Line_Number'Pos (Line);
+   begin
+      EXTI_Periph.CPUIMR1.Arr (Index)  := False;
+      EXTI_Periph.RTSR1.TR.Arr (Index) := False;
+      EXTI_Periph.FTSR1.TR.Arr (Index) := False;
+   end Disable_External_Interrupt;
+
+   ---------------------------
+   -- Enable_External_Event --
+   ---------------------------
+
+   procedure Enable_External_Event
+     (Line    : External_Line_Number;
+      Trigger : Event_Triggers)
    is
+      Index : constant Natural := External_Line_Number'Pos (Line);
    begin
-      Connect_External_Interrupt (Port, GPIO_Pin'Pos (Pin));
-   end Connect_External_Interrupt;
+      EXTI_Periph.CPUEMR1.Arr (Index)  := True;
+      EXTI_Periph.RTSR1.TR.Arr (Index) :=
+        Trigger in Interrupt_Rising_Edge  | Interrupt_Rising_Falling_Edge;
+      EXTI_Periph.FTSR1.TR.Arr (Index) :=
+        Trigger in Interrupt_Falling_Edge | Interrupt_Rising_Falling_Edge;
+   end Enable_External_Event;
 
-   --------------------------------
-   -- Connect_External_Interrupt --
-   --------------------------------
+   ----------------------------
+   -- Disable_External_Event --
+   ----------------------------
 
-   procedure Connect_External_Interrupt
-     (Point  : GPIO_Point)
-   is
+   procedure Disable_External_Event (Line : External_Line_Number) is
+      Index : constant Natural := External_Line_Number'Pos (Line);
    begin
-      Connect_External_Interrupt (Point.Periph.all, Point.Pin);
-   end Connect_External_Interrupt;
+      EXTI_Periph.CPUEMR1.Arr (Index)  := False;
+      EXTI_Periph.RTSR1.TR.Arr (Index) := False;
+      EXTI_Periph.FTSR1.TR.Arr (Index) := False;
+   end Disable_External_Event;
 
-   --------------------------------
-   -- Connect_External_Interrupt --
-   --------------------------------
+   ------------------
+   -- Generate_SWI --
+   ------------------
 
-   procedure Connect_External_Interrupt
-     (Port : GPIO_Port;
-      Pins : GPIO_Pins)
-   is
+   procedure Generate_SWI (Line : External_Line_Number) is
    begin
-      for Pin of Pins loop
-         Connect_External_Interrupt (Port, Pin);
-      end loop;
-   end Connect_External_Interrupt;
+      EXTI_Periph.SWIER1.SWIER.Arr (External_Line_Number'Pos (Line)) := True;
+   end Generate_SWI;
+
+   --------------------------------
+   -- External_Interrupt_Pending --
+   --------------------------------
+
+   function External_Interrupt_Pending (Line : External_Line_Number)
+     return Boolean
+   is (EXTI_Periph.CPUPR1.PR.Arr (External_Line_Number'Pos (Line)));
 
    ------------------------------
    -- Clear_External_Interrupt --
    ------------------------------
 
-   procedure Clear_External_Interrupt (Pin : GPIO_Pin) is
-      use STM32.EXTI;
+   procedure Clear_External_Interrupt (Line : External_Line_Number) is
    begin
-      Clear_External_Interrupt (External_Line_Number'Val (GPIO_Pin'Pos (Pin)));
+      --  yes, one to clear
+      EXTI_Periph.CPUPR1.PR.Arr (External_Line_Number'Pos (Line)) := True;
    end Clear_External_Interrupt;
 
-   --------------------
-   -- Configure_RMII --
-   --------------------
 
-   procedure Configure_RMII (RMII : Boolean := True) is
-   begin
-      --  H7: PMC→PMCR, MII_RMII_SEL→EPIS field (3 bits: 0=MII, 1=Reserved, 4=RMII)
-      STM32_SVD.SYSCFG.SYSCFG_Periph.PMCR.EPIS := (if RMII then 4 else 0);
-   end Configure_RMII;
-
-end STM32.SYSCFG;
+end STM32.EXTI;

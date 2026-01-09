@@ -1,0 +1,48 @@
+{
+  "name": "Ada Drivers Library Development",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "context": ".."
+  },
+  
+  // Configure tool-specific properties
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "AdaCore.ada",
+        "ms-vscode.cpptools",
+        "mhutchie.git-graph"
+      ],
+      "settings": {
+        "ada.projectFile": "boards/Matek_H743_slim_v3/matek_h743_slim_v3_sfp.gpr",
+        "ada.scenarioVariables": {
+          "ADL_BUILD": "Debug"
+        },
+        "files.associations": {
+          "*.gpr": "ada",
+          "*.ads": "ada",
+          "*.adb": "ada"
+        }
+      }
+    }
+  },
+
+  // Use 'forwardPorts' to make a list of ports inside the container available locally
+  "forwardPorts": [],
+
+  // Use 'postCreateCommand' to run commands after the container is created
+  "postCreateCommand": "bash .devcontainer/post-create.sh",
+
+  // Set container user
+  "remoteUser": "ada",
+  
+  // Mount workspace
+  "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind,consistency=cached",
+  "workspaceFolder": "/workspace",
+
+  // Features to add
+  "features": {
+    "ghcr.io/devcontainers/features/git:1": {},
+    "ghcr.io/devcontainers/features/github-cli:1": {}
+  }
+}

@@ -39,7 +39,7 @@ with System;
 with SDMMC_SVD_Periph;
 
 with HAL.SDMMC;             use HAL.SDMMC;
-with HAL.Block_Drivers;
+with HAL.Block_Drivers;     use HAL.Block_Drivers;
 with STM32.DMA;
 with STM32.DMA.Interrupts;
 
@@ -248,19 +248,19 @@ private
 
    function Get_FIFO_Address
      (This : SDMMC_Controller) return System.Address
-   is (This.Periph.FIFO'Address);
+   is (This.Periph.FIFOR'Address);
 
    function Get_Flag
      (This : SDMMC_Controller;
       Flag : SDMMC_Flags) return Boolean
    is (case Flag is
-          when Data_End      => This.Periph.STA.DATAEND,
-          when Data_CRC_Fail => This.Periph.STA.DCRCFAIL,
-          when Data_Timeout  => This.Periph.STA.DTIMEOUT,
-          when RX_Overrun    => This.Periph.STA.RXOVERR,
-          when TX_Underrun   => This.Periph.STA.TXUNDERR,
-          when RX_Active     => This.Periph.STA.RXACT,
-          when TX_Active     => This.Periph.STA.TXACT);
+          when Data_End      => This.Periph.STAR.DATAEND,
+          when Data_CRC_Fail => This.Periph.STAR.DCRCFAIL,
+          when Data_Timeout  => This.Periph.STAR.DTIMEOUT,
+          when RX_Overrun    => This.Periph.STAR.RXOVERR,
+          when TX_Underrun   => This.Periph.STAR.TXUNDERR,
+          when RX_Active     => This.Periph.STAR.DPSMACT,
+          when TX_Active     => This.Periph.STAR.DPSMACT);
 
    function Last_Operation
      (This : SDMMC_Controller) return SDMMC_Operation

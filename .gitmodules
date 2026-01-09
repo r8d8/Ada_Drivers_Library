@@ -1,0 +1,6 @@
+[submodule "bb-runtimes"]
+	path = bb-runtimes
+	url = https://github.com/r8d8/bb-runtimes.git
+	branch = feature/STM32H7
+[submodule "reference_h7"]
+	path = reference_h7

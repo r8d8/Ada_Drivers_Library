@@ -943,10 +943,11 @@ package STM32.Timers is
      (TIM11_GPIO => 0,
       TIM11_HSE  => 2);
 
-   procedure Configure_Timer_11_Remapping
-     (This   : in out Timer;
-      Option : Timer_11_Remapping_Options)
-     with Pre => This'Address = STM32_SVD.TIM11_Base;
+   --  TIM11 doesn't exist in STM32H7
+   --  procedure Configure_Timer_11_Remapping
+   --    (This   : in out Timer;
+   --     Option : Timer_11_Remapping_Options)
+   --    with Pre => This'Address = STM32_SVD.TIM11_Base;
 
    ----------------------------------------------------------------------------
 
@@ -997,7 +998,7 @@ package STM32.Timers is
       This'Address = STM32_SVD.TIM4_Base or
       This'Address = STM32_SVD.TIM5_Base or
       This'Address = STM32_SVD.TIM8_Base or
-      This'Address = STM32_SVD.TIM9_Base or
+      --  TIM9 doesn't exist in H7
       This'Address = STM32_SVD.TIM12_Base);
 
    --  Timers 1 .. 5, 8
@@ -1009,7 +1010,7 @@ package STM32.Timers is
       This'Address = STM32_SVD.TIM5_Base or
       This'Address = STM32_SVD.TIM8_Base);
 
-   --  Timers 1 .. 5, 8, 9, 12
+   --  Timers 1 .. 5, 8, 12 (TIM9 doesn't exist in H7)
    function Clock_Management_Supported (This : Timer) return Boolean is
      (This'Address = STM32_SVD.TIM1_Base or
       This'Address = STM32_SVD.TIM2_Base or
@@ -1017,7 +1018,6 @@ package STM32.Timers is
       This'Address = STM32_SVD.TIM4_Base or
       This'Address = STM32_SVD.TIM5_Base or
       This'Address = STM32_SVD.TIM8_Base or
-      This'Address = STM32_SVD.TIM9_Base or
       This'Address = STM32_SVD.TIM12_Base);
 
    --  Timers 1 .. 5, 8
@@ -1063,7 +1063,7 @@ package STM32.Timers is
       This'Address = STM32_SVD.TIM7_Base or
       This'Address = STM32_SVD.TIM8_Base);
 
-   --  Timers 1 .. 5, 8, 9, 12
+   --  Timers 1 .. 5, 8, 12 (TIM9 doesn't exist in H7)
    function Slave_Mode_Supported (This : Timer) return Boolean is
      (This'Address = STM32_SVD.TIM1_Base or
       This'Address = STM32_SVD.TIM2_Base or
@@ -1071,7 +1071,6 @@ package STM32.Timers is
       This'Address = STM32_SVD.TIM4_Base or
       This'Address = STM32_SVD.TIM5_Base or
       This'Address = STM32_SVD.TIM8_Base or
-      This'Address = STM32_SVD.TIM9_Base or
       This'Address = STM32_SVD.TIM12_Base);
 
    --  Timers 1 .. 5, 8
@@ -1083,11 +1082,11 @@ package STM32.Timers is
       This'Address = STM32_SVD.TIM5_Base or
       This'Address = STM32_SVD.TIM8_Base);
 
-   --  Timers 2, 5, 11
+   --  Timers 2, 5 (TIM11 doesn't exist in H7)
    function Remapping_Capability_Supported (This : Timer) return Boolean is
      (This'Address = STM32_SVD.TIM2_Base or
-      This'Address = STM32_SVD.TIM5_Base or
-      This'Address = STM32_SVD.TIM11_Base);
+      This'Address = STM32_SVD.TIM5_Base);
+      --  TIM11_Base removed - doesn't exist in H7
 
    --  Not all timers support output on all channels
    function Specific_Channel_Output_Supported
@@ -1102,15 +1101,7 @@ package STM32.Timers is
       This'Address = STM32_SVD.TIM8_Base
       --  all the above can be with any of the four channels
       or
-      (This'Address = STM32_SVD.TIM9_Base and
-       Channel in Channel_1 | Channel_2)
-      or
-      (This'Address = STM32_SVD.TIM10_Base and
-       Channel = Channel_1)
-      or
-      (This'Address = STM32_SVD.TIM11_Base and
-       Channel = Channel_1)
-      or
+      --  TIM9, TIM10, TIM11 don't exist in H7
       (This'Address = STM32_SVD.TIM12_Base and
        Channel in Channel_1 | Channel_2)
       or

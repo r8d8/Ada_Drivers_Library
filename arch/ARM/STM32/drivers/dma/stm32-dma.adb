@@ -318,9 +318,9 @@ package body STM32.DMA is
    begin
       --  the following assignment has NO EFFECT if flow is controlled by
       --  peripheral. The hardware resets it to 16#FFFF#, see RM0090 10.3.15.
-      This_Stream.NDTR.NDT := Data_Count;
+      This_Stream.NDTR.NDT := STM32_SVD.UInt16 (Data_Count);
 
-      if This_Stream.CR.DIR = Memory_To_Peripheral'Enum_Rep then
+      if UInt32 (This_Stream.CR.DIR) = UInt32 (Memory_To_Peripheral'Enum_Rep) then
          This_Stream.M0AR := W (Source);
          This_Stream.PAR  := W (Destination);
       else
@@ -735,7 +735,7 @@ package body STM32.DMA is
    is
       This_Stream : DMA_Stream renames Get_Stream (This, Stream);
    begin
-      This_Stream.NDTR.NDT := Data_Count;
+      This_Stream.NDTR.NDT := STM32_SVD.UInt16 (Data_Count);
    end Set_NDT;
 
    function Items_Transferred
@@ -761,7 +761,7 @@ package body STM32.DMA is
    is
       This_Stream : DMA_Stream renames Get_Stream (This, Stream);
    begin
-      return This_Stream.NDTR.NDT;
+      return UInt16 (This_Stream.NDTR.NDT);
    end Current_NDT;
 
    ---------------------
@@ -809,8 +809,9 @@ package body STM32.DMA is
       This_Stream.CR.CT  := -Memory_Buffer_0;
       This_Stream.CR.DBM := False;
 
-      This_Stream.CR.CHSEL :=
-        DMA_Channel_Selector'Enum_Rep (Config.Channel);
+      --  H7 doesn't have CHSEL - channel selection is done via DMAMUX
+      --  This_Stream.CR.CHSEL :=
+      --    DMA_Channel_Selector'Enum_Rep (Config.Channel);
       This_Stream.CR.DIR :=
         DMA_Data_Transfer_Direction'Enum_Rep (Config.Direction);
       This_Stream.CR.PINC := Config.Increment_Peripheral_Address;
@@ -1044,8 +1045,11 @@ package body STM32.DMA is
      (This : DMA_Controller;  Stream : DMA_Stream_Selector)
       return DMA_Channel_Selector
    is
+      pragma Unreferenced (This, Stream);
    begin
-      return DMA_Channel_Selector'Val (Get_Stream (This, Stream).CR.CHSEL);
+      --  H7 doesn't have CHSEL - would need to query DMAMUX instead
+      return Channel_0;  -- Dummy return, will raise exception
+      raise Program_Error with "Selected_Channel not supported on STM32H7";
    end Selected_Channel;
 
    -------------

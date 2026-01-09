@@ -120,7 +120,7 @@ package body STM32.I2C is
 
       if Configuration.Own_Address /= 0 then
          This.Periph.OAR1 :=
-           (OA1     => Configuration.Own_Address,
+           (OA1     => STM32_SVD.UInt10 (Configuration.Own_Address),
             OA1EN   => True,
             OA1MODE => Configuration.Addressing_Mode = Addressing_Mode_10bit,
             others  => <>);
@@ -172,8 +172,8 @@ package body STM32.I2C is
    is
       CR2 : CR2_Register := Port.Periph.CR2;
    begin
-      CR2.SADD := UInt10 (Addr);
-      CR2.NBYTES := Size;
+      CR2.SADD := (As_Array => False, Val => STM32_SVD.UInt10 (Addr));
+      CR2.NBYTES := STM32_SVD.Byte (Size);
       CR2.RELOAD := Mode = Reload_Mode;
       CR2.AUTOEND := Mode = Autoend_Mode;
 
@@ -207,7 +207,7 @@ package body STM32.I2C is
    is
       CR2 : CR2_Register := Port.Periph.CR2;
    begin
-      CR2.SADD    := 0;
+      CR2.SADD    := (As_Array => False, Val => 0);
       CR2.HEAD10R := False;
       CR2.NBYTES  := 0;
       CR2.RELOAD  := False;
@@ -413,7 +413,7 @@ package body STM32.I2C is
             return;
          end if;
 
-         This.Periph.TXDR.TXDATA := Data (Data'First + Transmitted);
+         This.Periph.TXDR.TXDATA := STM32_SVD.Byte (Data (Data'First + Transmitted));
          Transmitted := Transmitted + 1;
 
          if Transmitted = Size_Temp
@@ -498,7 +498,7 @@ package body STM32.I2C is
             null;
          end loop;
 
-         Data (Data'First + Transmitted) := This.Periph.RXDR.RXDATA;
+         Data (Data'First + Transmitted) := UInt8 (This.Periph.RXDR.RXDATA);
          Transmitted := Transmitted + 1;
          Size_Temp   := Size_Temp - 1;
 
@@ -593,21 +593,21 @@ package body STM32.I2C is
 
       case Mem_Addr_Size is
          when Memory_Size_8b =>
-            This.Periph.TXDR.TXDATA := UInt8 (Mem_Addr);
+            This.Periph.TXDR.TXDATA := STM32_SVD.Byte (UInt8 (Mem_Addr));
 
          when Memory_Size_16b =>
             declare
                MSB : constant UInt8 := UInt8 (Shift_Right (Mem_Addr, 8));
                LSB : constant UInt8 := UInt8 (Mem_Addr and 16#FF#);
             begin
-               This.Periph.TXDR.TXDATA := MSB;
+               This.Periph.TXDR.TXDATA := STM32_SVD.Byte (MSB);
 
                Wait_Tx_Interrupt_Status (This, Timeout, Status);
                if Status /= Ok then
                   return;
                end if;
 
-               This.Periph.TXDR.TXDATA := LSB;
+               This.Periph.TXDR.TXDATA := STM32_SVD.Byte (LSB);
             end;
       end case;
 
@@ -636,7 +636,7 @@ package body STM32.I2C is
             return;
          end if;
 
-         This.Periph.TXDR.TXDATA := Data (Data'First + Transmitted);
+         This.Periph.TXDR.TXDATA := STM32_SVD.Byte (Data (Data'First + Transmitted));
          Transmitted := Transmitted + 1;
 
          if Transmitted = Size_Temp
@@ -733,14 +733,14 @@ package body STM32.I2C is
 
       case Mem_Addr_Size is
          when Memory_Size_8b =>
-            This.Periph.TXDR.TXDATA := UInt8 (Mem_Addr);
+            This.Periph.TXDR.TXDATA := STM32_SVD.Byte (UInt8 (Mem_Addr));
 
          when Memory_Size_16b =>
             declare
                MSB : constant UInt8 := UInt8 (Shift_Right (Mem_Addr, 8));
                LSB : constant UInt8 := UInt8 (Mem_Addr and 16#FF#);
             begin
-               This.Periph.TXDR.TXDATA := MSB;
+               This.Periph.TXDR.TXDATA := STM32_SVD.Byte (MSB);
 
                Wait_Tx_Interrupt_Status (This, Timeout, Status);
 
@@ -748,7 +748,7 @@ package body STM32.I2C is
                   return;
                end if;
 
-               This.Periph.TXDR.TXDATA := LSB;
+               This.Periph.TXDR.TXDATA := STM32_SVD.Byte (LSB);
             end;
       end case;
 
@@ -774,7 +774,7 @@ package body STM32.I2C is
             null;
          end loop;
 
-         Data (Data'First + Transmitted) := This.Periph.RXDR.RXDATA;
+         Data (Data'First + Transmitted) := UInt8 (This.Periph.RXDR.RXDATA);
          Transmitted := Transmitted + 1;
          Size_Temp   := Size_Temp - 1;
 

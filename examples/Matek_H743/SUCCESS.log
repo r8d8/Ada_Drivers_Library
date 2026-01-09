@@ -1,0 +1,7 @@
+Compile
+   [Ada]          stm32-exti.adb
+stm32-exti.adb:59:26: error: no selector "MR" for type "CPUIMR1_Register" defined at stm32_svd-exti.ads:737
+stm32-exti.adb:73:26: error: no selector "MR" for type "CPUIMR1_Register" defined at stm32_svd-exti.ads:737
+stm32-exti.adb:88:26: error: no selector "MR" for type "CPUEMR1_Register" defined at stm32_svd-exti.ads:762
+stm32-exti.adb:102:26: error: no selector "MR" for type "CPUEMR1_Register" defined at stm32_svd-exti.ads:762
+gprbuild: *** compilation phase failed
