@@ -4,3 +4,4 @@
 	branch = feature/STM32H7
 [submodule "reference_h7"]
 	path = reference_h7
+	url = https://github.com/JCGobbi/Nucleo-STM32H743ZI.git
