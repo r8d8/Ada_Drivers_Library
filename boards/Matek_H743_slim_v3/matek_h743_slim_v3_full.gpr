@@ -104,7 +104,7 @@ library project Matek_H743_Slim_V3_Full is
     Src_Dirs_Root & "/arch/ARM/STM32/drivers/sai_stm32h7/", -- H7-specific SAI driver
     Src_Dirs_Root & "/arch/ARM/STM32/drivers/wwdg_stm32h7/", -- H7-specific WWDG driver
     Src_Dirs_Root & "/arch/ARM/STM32/drivers/rtc_stm32h7/", -- H7-specific RTC driver
-    Src_Dirs_Root & "/arch/ARM/STM32/drivers/spi_stm32h7/", -- H7-specific SPI driver
+    -- Src_Dirs_Root & "/arch/ARM/STM32/drivers/spi_stm32h7/", -- H7-specific SPI driver (temporarily disabled - has errors)
     Src_Dirs_Root & "/arch/ARM/STM32/drivers/rng_stm32h7/", -- H7-specific RNG driver
     Src_Dirs_Root & "/arch/ARM/STM32/drivers/pwm_stm32h7/", -- H7-specific PWM driver
     Src_Dirs_Root & "/arch/ARM/STM32/drivers/iwdg_stm32h7/", -- H7-specific IWDG driver

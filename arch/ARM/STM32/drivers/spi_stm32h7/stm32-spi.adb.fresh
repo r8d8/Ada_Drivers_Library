@@ -46,7 +46,6 @@ with STM32_SVD.SPI; use STM32_SVD.SPI;
 package body STM32.SPI is
 
    use type HAL.SPI.SPI_Data_Size;
-   use type HAL.UInt32;
 
    Baud_Rate_Value : constant array (SPI_Baud_Rate_Prescaler) of UInt3 :=
      (Div_2   => 2#000#,
@@ -808,349 +807,349 @@ package body STM32.SPI is
    -- Send_Receive_32bit_Mode --
    -----------------------------
 
---     procedure Send_Receive_32bit_Mode
---       (This     : in out SPI_Port;
---        Outgoing : UInt8_Buffer;
---        Incoming : out UInt8_Buffer;
---        Size     : Positive)
---     is
---        Tx_Count : Natural := Size;
---        Outgoing_Index : Natural := Outgoing'First;
---        Incoming_Index : Natural := Incoming'First;
---     begin
---        if Current_Mode (This) = Slave or else Tx_Count = 1 then
---           This.Periph.TXDR :=
---             As_Word_Pointer (Outgoing (Outgoing_Index)'Address).all;
---           Outgoing_Index := Outgoing_Index + 4;
---           Tx_Count := Tx_Count - 1;
---        end if;
---  
---        if Tx_Count = 0 then
---  
---           --  wait until data is received
---           while Rx_Is_Empty (This) loop
---              null;
---           end loop;
---  
---           As_Word_Pointer (Incoming (Incoming_Index)'Address).all :=
---             This.Periph.RXDR;
---  
---           return;
---        end if;
---  
---        while Tx_Count > 0 loop
---           --  wait until we can send data
---           while not Tx_Is_Empty (This) loop
---              null;
---           end loop;
---  
---           This.Periph.TXDR :=
---             As_Word_Pointer (Outgoing (Outgoing_Index)'Address).all;
---           Outgoing_Index := Outgoing_Index + 4;
---           Tx_Count := Tx_Count - 1;
---  
---           --  wait until data is received
---           while Rx_Is_Empty (This) loop
---              null;
---           end loop;
---  
---           As_Word_Pointer (Incoming (Incoming_Index)'Address).all :=
---             This.Periph.RXDR;
---           Incoming_Index := Incoming_Index + 4;
---        end loop;
---  
---        --  receive the last UInt8
---        if Current_Mode (This) = Slave then
---           --  wait until data is received
---           while Rx_Is_Empty (This) loop
---              null;
---           end loop;
---  
---           As_Word_Pointer (Incoming (Incoming_Index)'Address).all :=
---             This.Periph.RXDR;
---        end if;
---     end Send_Receive_32bit_Mode;
---  
---     -----------------------------
---     -- Send_Receive_16bit_Mode --
---     -----------------------------
---  
---     procedure Send_Receive_16bit_Mode
---       (This     : in out SPI_Port;
---        Outgoing : UInt8_Buffer;
---        Incoming : out UInt8_Buffer;
---        Size     : Positive)
---     is
---        Tx_Count : Natural := Size;
---        Outgoing_Index : Natural := Outgoing'First;
---        Incoming_Index : Natural := Incoming'First;
---     begin
---        if Current_Mode (This) = Slave or else Tx_Count = 1 then
---           This.Periph.TXDR :=
---             UInt32 (As_Half_Word_Pointer (Outgoing (Outgoing_Index)'Address).all);
---           Outgoing_Index := Outgoing_Index + 2;
---           Tx_Count := Tx_Count - 1;
---        end if;
---  
---        if Tx_Count = 0 then
---  
---           --  wait until data is received
---           while Rx_Is_Empty (This) loop
---              null;
---           end loop;
---  
---           As_Half_Word_Pointer (Incoming (Incoming_Index)'Address).all :=
---             UInt16 (This.Periph.RXDR);
---  
---           return;
---        end if;
---  
---        while Tx_Count > 0 loop
---           --  wait until we can send data
---           while not Tx_Is_Empty (This) loop
---              null;
---           end loop;
---  
---           This.Periph.TXDR :=
---             UInt32 (As_Half_Word_Pointer (Outgoing (Outgoing_Index)'Address).all);
---           Outgoing_Index := Outgoing_Index + 2;
---           Tx_Count := Tx_Count - 1;
---  
---           --  wait until data is received
---           while Rx_Is_Empty (This) loop
---              null;
---           end loop;
---  
---           As_Half_Word_Pointer (Incoming (Incoming_Index)'Address).all :=
---             UInt16 (This.Periph.RXDR);
---           Incoming_Index := Incoming_Index + 2;
---        end loop;
---  
---        --  receive the last UInt8
---        if Current_Mode (This) = Slave then
---           --  wait until data is received
---           while Rx_Is_Empty (This) loop
---              null;
---           end loop;
---  
---           As_Half_Word_Pointer (Incoming (Incoming_Index)'Address).all :=
---             UInt16 (This.Periph.RXDR);
---        end if;
---     end Send_Receive_16bit_Mode;
---  
---     ----------------------------
---     -- Send_Receive_8bit_Mode --
---     ----------------------------
---  
---     procedure Send_Receive_8bit_Mode
---       (This     : in out SPI_Port;
---        Outgoing : UInt8_Buffer;
---        Incoming : out UInt8_Buffer;
---        Size     : Positive)
---     is
---        Tx_Count : Natural := Size;
---        Outgoing_Index : Natural := Outgoing'First;
---        Incoming_Index : Natural := Incoming'First;
---     begin
---        if Current_Mode (This) = Slave or else Tx_Count = 1 then
---           This.Periph.TXDR := UInt32 (Outgoing (Outgoing_Index));
---           Outgoing_Index := Outgoing_Index + 1;
---           Tx_Count := Tx_Count - 1;
---        end if;
---  
---        if Tx_Count = 0 then
---  
---           --  wait until data is received
---           while Rx_Is_Empty (This) loop
---              null;
---           end loop;
---  
---           Incoming (Incoming_Index) := UInt8 (This.Periph.RXDR);
---  
---           return;
---        end if;
---  
---        while Tx_Count > 0 loop
---           --  wait until we can send data
---           while not Tx_Is_Empty (This) loop
---              null;
---           end loop;
---  
---           This.Periph.TXDR := UInt32 (Outgoing (Outgoing_Index));
---           Outgoing_Index := Outgoing_Index + 1;
---           Tx_Count := Tx_Count - 1;
---  
---           --  wait until data is received
---           while Rx_Is_Empty (This) loop
---              null;
---           end loop;
---  
---           Incoming (Incoming_Index) := UInt8 (This.Periph.RXDR);
---           Incoming_Index := Incoming_Index + 1;
---        end loop;
---  
---        if Current_Mode (This) = Slave then
---           --  wait until data is received
---           while Rx_Is_Empty (This) loop
---              null;
---           end loop;
---  
---           Incoming (Incoming_Index) := UInt8 (This.Periph.RXDR);
---        end if;
---     end Send_Receive_8bit_Mode;
---  
---     ---------------------
---     -- Send_32bit_Mode --
---     ---------------------
---  
---     procedure Send_32bit_Mode
---       (This     : in out SPI_Port;
---        Outgoing : HAL.SPI.SPI_Data_32b)
---     is
---        Tx_Count : Natural := Outgoing'Length;
---        Index    : Natural := Outgoing'First;
---     begin
---        if Current_Mode (This) = Slave or else Tx_Count = 1 then
---           This.Periph.TXDR :=
---             As_Word_Pointer (Outgoing (Index)'Address).all;
---           Index := Index + 4;
---           Tx_Count := Tx_Count - 1;
---        end if;
---  
---        while Tx_Count > 0 loop
---           --  wait until we can send data
---           while not Tx_Is_Empty (This) loop
---              null;
---           end loop;
---  
---           This.Periph.TXDR :=
---             As_Word_Pointer (Outgoing (Index)'Address).all;
---           Index := Index + 4;
---           Tx_Count := Tx_Count - 1;
---        end loop;
---     end Send_32bit_Mode;
---  
---     ---------------------
---     -- Send_16bit_Mode --
---     ---------------------
---  
---     procedure Send_16bit_Mode
---       (This     : in out SPI_Port;
---        Outgoing : HAL.SPI.SPI_Data_16b)
---     is
---        Tx_Count : Natural := Outgoing'Length;
---        Index    : Natural := Outgoing'First;
---     begin
---        if Current_Mode (This) = Slave or else Tx_Count = 1 then
---           This.Periph.TXDR :=
---             UInt32 (As_Half_Word_Pointer (Outgoing (Index)'Address).all);
---           Index := Index + 2;
---           Tx_Count := Tx_Count - 1;
---        end if;
---  
---        while Tx_Count > 0 loop
---           --  wait until we can send data
---           while not Tx_Is_Empty (This) loop
---              null;
---           end loop;
---  
---           This.Periph.TXDR :=
---             UInt32 (As_Half_Word_Pointer (Outgoing (Index)'Address).all);
---           Index := Index + 2;
---           Tx_Count := Tx_Count - 1;
---        end loop;
---     end Send_16bit_Mode;
---  
---     --------------------
---     -- Send_8bit_Mode --
---     --------------------
---  
---     procedure Send_8bit_Mode
---       (This     : in out SPI_Port;
---        Outgoing : HAL.SPI.SPI_Data_8b)
---     is
---        Tx_Count : Natural := Outgoing'Length;
---        Index    : Natural := Outgoing'First;
---     begin
---        if Current_Mode (This) = Slave or else Tx_Count = 1 then
---           This.Periph.TXDR := UInt32 (Outgoing (Index));
---           Index := Index + 1;
---           Tx_Count := Tx_Count - 1;
---        end if;
---  
---        while Tx_Count > 0 loop
---           --  wait until we can send data
---           while not Tx_Is_Empty (This) loop
---              null;
---           end loop;
---  
---           This.Periph.TXDR := UInt32 (Outgoing (Index));
---           Index := Index + 1;
---           Tx_Count := Tx_Count - 1;
---        end loop;
---     end Send_8bit_Mode;
---  
---     ------------------------
---     -- Receive_32bit_Mode --
---     ------------------------
---  
---     procedure Receive_32bit_Mode
---       (This     : in out SPI_Port;
---        Incoming : out HAL.SPI.SPI_Data_32b)
---     is
---        Generate_Clock : constant Boolean := Current_Mode (This) = Master;
---     begin
---        for K of Incoming loop
---           if Generate_Clock then
---              This.Periph.RXDR := 0;
---           end if;
---           while Rx_Is_Empty (This) loop
---              null;
---           end loop;
---           K := This.Periph.RXDR;
---        end loop;
---     end Receive_32bit_Mode;
---  
---     ------------------------
---     -- Receive_16bit_Mode --
---     ------------------------
---  
---     procedure Receive_16bit_Mode
---       (This     : in out SPI_Port;
---        Incoming : out HAL.SPI.SPI_Data_16b)
---     is
---        Generate_Clock : constant Boolean := Current_Mode (This) = Master;
---     begin
---        for K of Incoming loop
---           if Generate_Clock then
---              This.Periph.RXDR := 0;
---           end if;
---           while Rx_Is_Empty (This) loop
---              null;
---           end loop;
---           K := UInt16 (This.Periph.RXDR);
---        end loop;
---     end Receive_16bit_Mode;
---  
---     -----------------------
---     -- Receive_8bit_Mode --
---     -----------------------
---  
---     procedure Receive_8bit_Mode
---       (This     : in out SPI_Port;
---        Incoming : out HAL.SPI.SPI_Data_8b)
---     is
---        Generate_Clock : constant Boolean := Current_Mode (This) = Master;
---     begin
---        for K of Incoming loop
---           if Generate_Clock then
---              This.Periph.RXDR := 0;
---           end if;
---           while Rx_Is_Empty (This) loop
---              null;
---           end loop;
---           K := UInt8 (This.Periph.RXDR);
---        end loop;
---     end Receive_8bit_Mode;
---  
+   procedure Send_Receive_32bit_Mode
+     (This     : in out SPI_Port;
+      Outgoing : UInt8_Buffer;
+      Incoming : out UInt8_Buffer;
+      Size     : Positive)
+   is
+      Tx_Count : Natural := Size;
+      Outgoing_Index : Natural := Outgoing'First;
+      Incoming_Index : Natural := Incoming'First;
+   begin
+      if Current_Mode (This) = Slave or else Tx_Count = 1 then
+         This.Periph.TXDR :=
+           As_Word_Pointer (Outgoing (Outgoing_Index)'Address).all;
+         Outgoing_Index := Outgoing_Index + 4;
+         Tx_Count := Tx_Count - 1;
+      end if;
+
+      if Tx_Count = 0 then
+
+         --  wait until data is received
+         while Rx_Is_Empty (This) loop
+            null;
+         end loop;
+
+         As_Word_Pointer (Incoming (Incoming_Index)'Address).all :=
+           This.Periph.RXDR;
+
+         return;
+      end if;
+
+      while Tx_Count > 0 loop
+         --  wait until we can send data
+         while not Tx_Is_Empty (This) loop
+            null;
+         end loop;
+
+         This.Periph.TXDR :=
+           As_Word_Pointer (Outgoing (Outgoing_Index)'Address).all;
+         Outgoing_Index := Outgoing_Index + 4;
+         Tx_Count := Tx_Count - 1;
+
+         --  wait until data is received
+         while Rx_Is_Empty (This) loop
+            null;
+         end loop;
+
+         As_Word_Pointer (Incoming (Incoming_Index)'Address).all :=
+           This.Periph.RXDR;
+         Incoming_Index := Incoming_Index + 4;
+      end loop;
+
+      --  receive the last UInt8
+      if Current_Mode (This) = Slave then
+         --  wait until data is received
+         while Rx_Is_Empty (This) loop
+            null;
+         end loop;
+
+         As_Word_Pointer (Incoming (Incoming_Index)'Address).all :=
+           This.Periph.RXDR;
+      end if;
+   end Send_Receive_32bit_Mode;
+
+   -----------------------------
+   -- Send_Receive_16bit_Mode --
+   -----------------------------
+
+   procedure Send_Receive_16bit_Mode
+     (This     : in out SPI_Port;
+      Outgoing : UInt8_Buffer;
+      Incoming : out UInt8_Buffer;
+      Size     : Positive)
+   is
+      Tx_Count : Natural := Size;
+      Outgoing_Index : Natural := Outgoing'First;
+      Incoming_Index : Natural := Incoming'First;
+   begin
+      if Current_Mode (This) = Slave or else Tx_Count = 1 then
+         This.Periph.TXDR :=
+           UInt32 (As_Half_Word_Pointer (Outgoing (Outgoing_Index)'Address).all);
+         Outgoing_Index := Outgoing_Index + 2;
+         Tx_Count := Tx_Count - 1;
+      end if;
+
+      if Tx_Count = 0 then
+
+         --  wait until data is received
+         while Rx_Is_Empty (This) loop
+            null;
+         end loop;
+
+         As_Half_Word_Pointer (Incoming (Incoming_Index)'Address).all :=
+           UInt16 (This.Periph.RXDR);
+
+         return;
+      end if;
+
+      while Tx_Count > 0 loop
+         --  wait until we can send data
+         while not Tx_Is_Empty (This) loop
+            null;
+         end loop;
+
+         This.Periph.TXDR :=
+           UInt32 (As_Half_Word_Pointer (Outgoing (Outgoing_Index)'Address).all);
+         Outgoing_Index := Outgoing_Index + 2;
+         Tx_Count := Tx_Count - 1;
+
+         --  wait until data is received
+         while Rx_Is_Empty (This) loop
+            null;
+         end loop;
+
+         As_Half_Word_Pointer (Incoming (Incoming_Index)'Address).all :=
+           UInt16 (This.Periph.RXDR);
+         Incoming_Index := Incoming_Index + 2;
+      end loop;
+
+      --  receive the last UInt8
+      if Current_Mode (This) = Slave then
+         --  wait until data is received
+         while Rx_Is_Empty (This) loop
+            null;
+         end loop;
+
+         As_Half_Word_Pointer (Incoming (Incoming_Index)'Address).all :=
+           UInt16 (This.Periph.RXDR);
+      end if;
+   end Send_Receive_16bit_Mode;
+
+   ----------------------------
+   -- Send_Receive_8bit_Mode --
+   ----------------------------
+
+   procedure Send_Receive_8bit_Mode
+     (This     : in out SPI_Port;
+      Outgoing : UInt8_Buffer;
+      Incoming : out UInt8_Buffer;
+      Size     : Positive)
+   is
+      Tx_Count : Natural := Size;
+      Outgoing_Index : Natural := Outgoing'First;
+      Incoming_Index : Natural := Incoming'First;
+   begin
+      if Current_Mode (This) = Slave or else Tx_Count = 1 then
+         This.Periph.TXDR := UInt32 (Outgoing (Outgoing_Index));
+         Outgoing_Index := Outgoing_Index + 1;
+         Tx_Count := Tx_Count - 1;
+      end if;
+
+      if Tx_Count = 0 then
+
+         --  wait until data is received
+         while Rx_Is_Empty (This) loop
+            null;
+         end loop;
+
+         Incoming (Incoming_Index) := UInt8 (This.Periph.RXDR);
+
+         return;
+      end if;
+
+      while Tx_Count > 0 loop
+         --  wait until we can send data
+         while not Tx_Is_Empty (This) loop
+            null;
+         end loop;
+
+         This.Periph.TXDR := UInt32 (Outgoing (Outgoing_Index));
+         Outgoing_Index := Outgoing_Index + 1;
+         Tx_Count := Tx_Count - 1;
+
+         --  wait until data is received
+         while Rx_Is_Empty (This) loop
+            null;
+         end loop;
+
+         Incoming (Incoming_Index) := UInt8 (This.Periph.RXDR);
+         Incoming_Index := Incoming_Index + 1;
+      end loop;
+
+      if Current_Mode (This) = Slave then
+         --  wait until data is received
+         while Rx_Is_Empty (This) loop
+            null;
+         end loop;
+
+         Incoming (Incoming_Index) := UInt8 (This.Periph.RXDR);
+      end if;
+   end Send_Receive_8bit_Mode;
+
+   ---------------------
+   -- Send_32bit_Mode --
+   ---------------------
+
+   procedure Send_32bit_Mode
+     (This     : in out SPI_Port;
+      Outgoing : HAL.SPI.SPI_Data_32b)
+   is
+      Tx_Count : Natural := Outgoing'Length;
+      Index    : Natural := Outgoing'First;
+   begin
+      if Current_Mode (This) = Slave or else Tx_Count = 1 then
+         This.Periph.TXDR :=
+           As_Word_Pointer (Outgoing (Index)'Address).all;
+         Index := Index + 4;
+         Tx_Count := Tx_Count - 1;
+      end if;
+
+      while Tx_Count > 0 loop
+         --  wait until we can send data
+         while not Tx_Is_Empty (This) loop
+            null;
+         end loop;
+
+         This.Periph.TXDR :=
+           As_Word_Pointer (Outgoing (Index)'Address).all;
+         Index := Index + 4;
+         Tx_Count := Tx_Count - 1;
+      end loop;
+   end Send_32bit_Mode;
+
+   ---------------------
+   -- Send_16bit_Mode --
+   ---------------------
+
+   procedure Send_16bit_Mode
+     (This     : in out SPI_Port;
+      Outgoing : HAL.SPI.SPI_Data_16b)
+   is
+      Tx_Count : Natural := Outgoing'Length;
+      Index    : Natural := Outgoing'First;
+   begin
+      if Current_Mode (This) = Slave or else Tx_Count = 1 then
+         This.Periph.TXDR :=
+           UInt32 (As_Half_Word_Pointer (Outgoing (Index)'Address).all);
+         Index := Index + 2;
+         Tx_Count := Tx_Count - 1;
+      end if;
+
+      while Tx_Count > 0 loop
+         --  wait until we can send data
+         while not Tx_Is_Empty (This) loop
+            null;
+         end loop;
+
+         This.Periph.TXDR :=
+           UInt32 (As_Half_Word_Pointer (Outgoing (Index)'Address).all);
+         Index := Index + 2;
+         Tx_Count := Tx_Count - 1;
+      end loop;
+   end Send_16bit_Mode;
+
+   --------------------
+   -- Send_8bit_Mode --
+   --------------------
+
+   procedure Send_8bit_Mode
+     (This     : in out SPI_Port;
+      Outgoing : HAL.SPI.SPI_Data_8b)
+   is
+      Tx_Count : Natural := Outgoing'Length;
+      Index    : Natural := Outgoing'First;
+   begin
+      if Current_Mode (This) = Slave or else Tx_Count = 1 then
+         This.Periph.TXDR := UInt32 (Outgoing (Index));
+         Index := Index + 1;
+         Tx_Count := Tx_Count - 1;
+      end if;
+
+      while Tx_Count > 0 loop
+         --  wait until we can send data
+         while not Tx_Is_Empty (This) loop
+            null;
+         end loop;
+
+         This.Periph.TXDR := UInt32 (Outgoing (Index));
+         Index := Index + 1;
+         Tx_Count := Tx_Count - 1;
+      end loop;
+   end Send_8bit_Mode;
+
+   ------------------------
+   -- Receive_32bit_Mode --
+   ------------------------
+
+   procedure Receive_32bit_Mode
+     (This     : in out SPI_Port;
+      Incoming : out HAL.SPI.SPI_Data_32b)
+   is
+      Generate_Clock : constant Boolean := Current_Mode (This) = Master;
+   begin
+      for K of Incoming loop
+         if Generate_Clock then
+            This.Periph.RXDR := 0;
+         end if;
+         while Rx_Is_Empty (This) loop
+            null;
+         end loop;
+         K := This.Periph.RXDR;
+      end loop;
+   end Receive_32bit_Mode;
+
+   ------------------------
+   -- Receive_16bit_Mode --
+   ------------------------
+
+   procedure Receive_16bit_Mode
+     (This     : in out SPI_Port;
+      Incoming : out HAL.SPI.SPI_Data_16b)
+   is
+      Generate_Clock : constant Boolean := Current_Mode (This) = Master;
+   begin
+      for K of Incoming loop
+         if Generate_Clock then
+            This.Periph.RXDR := 0;
+         end if;
+         while Rx_Is_Empty (This) loop
+            null;
+         end loop;
+         K := UInt16 (This.Periph.RXDR);
+      end loop;
+   end Receive_16bit_Mode;
+
+   -----------------------
+   -- Receive_8bit_Mode --
+   -----------------------
+
+   procedure Receive_8bit_Mode
+     (This     : in out SPI_Port;
+      Incoming : out HAL.SPI.SPI_Data_8b)
+   is
+      Generate_Clock : constant Boolean := Current_Mode (This) = Master;
+   begin
+      for K of Incoming loop
+         if Generate_Clock then
+            This.Periph.RXDR := 0;
+         end if;
+         while Rx_Is_Empty (This) loop
+            null;
+         end loop;
+         K := UInt8 (This.Periph.RXDR);
+      end loop;
+   end Receive_8bit_Mode;
+
 end STM32.SPI;
