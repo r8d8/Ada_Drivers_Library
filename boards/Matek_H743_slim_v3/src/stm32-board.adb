@@ -30,6 +30,10 @@
 ------------------------------------------------------------------------------
 
 with STM32.Device; use STM32.Device;
+with STM32.SPI;    use STM32.SPI;
+with STM32.GPIO;   use STM32.GPIO;
+
+with Matek_H743_Slim_V3; use Matek_H743_Slim_V3;
 
 package body STM32.Board is
 
@@ -69,5 +73,79 @@ package body STM32.Board is
    begin
       Set (All_LEDs);
    end All_LEDs_On;
+
+   ------------------------
+   -- Initialize_IMU_IO --
+   ------------------------
+
+   procedure Initialize_IMU_IO is
+      SPI_Pins : constant GPIO_Points := (SPI1_SCK, SPI1_MISO, SPI1_MOSI);
+      SPI_Config : GPIO_Port_Configuration;
+      SPI_AF : constant GPIO_Alternate_Function := GPIO_AF_SPI1_5;
+   begin
+      --  Enable clocks
+      Enable_Clock (SPI_Pins);
+      Enable_Clock (IMU1_CS);
+      Enable_Clock (SPI_1_Port);
+
+      --  Configure SPI pins (AF mode)
+      SPI_Config.Mode           := Mode_AF;
+      SPI_Config.AF             := SPI_AF;
+      SPI_Config.Output_Type    := Push_Pull;
+      SPI_Config.Speed          := Speed_100MHz;
+      SPI_Config.Resistors      := Floating;
+      Configure_IO (SPI_Pins, SPI_Config);
+
+      --  Configure CS pin as output (manually controlled)
+      SPI_Config.Mode        := Mode_Out;
+      SPI_Config.Output_Type := Push_Pull;
+      SPI_Config.Speed       := Speed_100MHz;
+      SPI_Config.Resistors   := Floating;
+      Configure_IO (IMU1_CS, SPI_Config);
+
+      --  Deassert CS (active low)
+      Set (IMU1_CS);
+
+      --  Configure SPI peripheral
+      --  H743 SPI1 clock is on APB2 (max 100MHz for H7)
+      --  We'll use prescaler to get ~16MHz for ICM42688P
+      --  100MHz / 8 = 12.5MHz (safe and within spec)
+      declare
+         SPI_Conf : SPI_Configuration;
+      begin
+         SPI_Conf.Mode                := Master;
+         SPI_Conf.Baud_Rate_Prescaler := BRDiv_8;     -- 100MHz / 8 = 12.5MHz
+         SPI_Conf.Clock_Polarity      := High;        -- CPOL = 1
+         SPI_Conf.Clock_Phase         := P2Edge;      -- CPHA = 1 (MODE3)
+         SPI_Conf.First_Bit           := MSB_First;
+         SPI_Conf.CRC_Poly            := 0;
+         SPI_Conf.Slave_Management    := Software_Managed;
+         SPI_Conf.Direction           := D2Lines_FullDuplex;
+         SPI_Conf.Data_Size           := HAL.SPI.Data_Size_8b;
+         SPI_Conf.Fifo_Level          := True;
+
+         Configure (SPI_1_Port, SPI_Conf);
+         Enable (SPI_1_Port);
+      end;
+   end Initialize_IMU_IO;
+
+   --------------------
+   -- Initialize_IMU --
+   --------------------
+
+   procedure Initialize_IMU is
+   begin
+      Initialize_IMU_IO;
+      ICM_Device.Initialize;
+   end Initialize_IMU;
+
+   --------------
+   -- Test_IMU --
+   --------------
+
+   function Test_IMU return Boolean is
+   begin
+      return ICM_Device.Test;
+   end Test_IMU;
 
 end STM32.Board;

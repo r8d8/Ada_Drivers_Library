@@ -32,7 +32,12 @@
 --  Board support for Matek H743 Slim V3 flight controller
 
 with Matek_H743_Slim_V3; use Matek_H743_Slim_V3;
+with STM32.Device;       use STM32.Device;
 with STM32.GPIO;         use STM32.GPIO;
+with STM32.SPI;          use STM32.SPI;
+
+with ICM42688P;          use ICM42688P;
+with Ravenscar_Time;
 
 package STM32.Board is
    pragma Elaborate_Body;
@@ -55,5 +60,31 @@ package STM32.Board is
 
    procedure All_LEDs_Off with Inline;
    procedure All_LEDs_On  with Inline;
-   
+
+   ---------
+   -- SPI --
+   ---------
+
+   --  SPI1 for primary IMU (ICM42688P)
+   SPI_1_Port : SPI_Port renames SPI_1;
+
+   ---------
+   -- IMU --
+   ---------
+
+   --  ICM42688P on SPI1
+   ICM_Device : ICM42688P_Device
+     (Port => SPI_1_Port'Access,
+      CS   => IMU1_CS'Access,
+      Time => Ravenscar_Time.Delays'Access);
+
+   --  Initialize SPI and GPIO for IMU
+   procedure Initialize_IMU_IO;
+
+   --  Initialize the ICM42688P sensor
+   procedure Initialize_IMU;
+
+   --  Test if IMU is responding
+   function Test_IMU return Boolean;
+
 end STM32.Board;
