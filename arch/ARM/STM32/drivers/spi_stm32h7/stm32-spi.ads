@@ -39,7 +39,7 @@
 --   COPYRIGHT(c) 2014 STMicroelectronics                                   --
 ------------------------------------------------------------------------------
 
---  This file provides definitions for the STM32F4 (ARM Cortex M4F
+--  This file provides definitions for the STM32G4 (ARM Cortex M4F
 --  from ST Microelectronics) Serial Peripheral Interface (SPI) facility.
 
 private with STM32_SVD.SPI;
@@ -55,11 +55,74 @@ package STM32.SPI is
 
    type SPI_Data_Direction is
      (D2Lines_FullDuplex,
-      D2Lines_RxOnly,
+      D1Line_Tx,
       D1Line_Rx,
-      D1Line_Tx);
+      D2Lines_RxOnly);
 
    type SPI_Mode is (Master, Slave);
+
+   type SPI_Data_Size is
+     (Bits_4,
+      Bits_5,
+      Bits_6,
+      Bits_7,
+      Bits_8,
+      Bits_9,
+      Bits_10,
+      Bits_11,
+      Bits_12,
+      Bits_13,
+      Bits_14,
+      Bits_15,
+      Bits_16,
+      Bits_17,
+      Bits_18,
+      Bits_19,
+      Bits_20,
+      Bits_21,
+      Bits_22,
+      Bits_23,
+      Bits_24,
+      Bits_25,
+      Bits_26,
+      Bits_27,
+      Bits_28,
+      Bits_29,
+      Bits_30,
+      Bits_31,
+      Bits_32)
+     with Size => 5;
+
+   for SPI_Data_Size use
+     (Bits_4  => 2#00011#,
+      Bits_5  => 2#00100#,
+      Bits_6  => 2#00101#,
+      Bits_7  => 2#00110#,
+      Bits_8  => 2#00111#,
+      Bits_9  => 2#01000#,
+      Bits_10 => 2#01001#,
+      Bits_11 => 2#01010#,
+      Bits_12 => 2#01011#,
+      Bits_13 => 2#01100#,
+      Bits_14 => 2#01101#,
+      Bits_15 => 2#01110#,
+      Bits_16 => 2#01111#,
+      Bits_17 => 2#10000#,
+      Bits_18 => 2#10001#,
+      Bits_19 => 2#10010#,
+      Bits_20 => 2#10011#,
+      Bits_21 => 2#10100#,
+      Bits_22 => 2#10101#,
+      Bits_23 => 2#10110#,
+      Bits_24 => 2#10111#,
+      Bits_25 => 2#11000#,
+      Bits_26 => 2#11001#,
+      Bits_27 => 2#11010#,
+      Bits_28 => 2#11011#,
+      Bits_29 => 2#11100#,
+      Bits_30 => 2#11101#,
+      Bits_31 => 2#11110#,
+      Bits_32 => 2#11111#);
 
    type SPI_Clock_Polarity is (High, Low);
 
@@ -68,7 +131,7 @@ package STM32.SPI is
    type SPI_Slave_Management is (Software_Managed, Hardware_Managed);
 
    type SPI_Baud_Rate_Prescaler is
-     (BRP_2, BRP_4, BRP_8, BRP_16, BRP_32, BRP_64, BRP_128, BRP_256);
+     (Div_2, Div_4, Div_8, Div_16, Div_32, Div_64, Div_128, Div_256);
 
    type SPI_First_Bit is (MSB, LSB);
 
@@ -81,7 +144,7 @@ package STM32.SPI is
       Slave_Management    : SPI_Slave_Management;
       Baud_Rate_Prescaler : SPI_Baud_Rate_Prescaler;
       First_Bit           : SPI_First_Bit;
-      CRC_Poly            : UInt16;
+      CRC_Poly            : UInt32;
    end record;
 
    procedure Configure (This : in out SPI_Port; Conf : SPI_Configuration);
@@ -92,14 +155,16 @@ package STM32.SPI is
 
    function Enabled (This : SPI_Port) return Boolean;
 
-   procedure Send (This : in out SPI_Port; Data : UInt16);
+   procedure Send (This : in out SPI_Port; Data : UInt32);
 
-   function Data (This : SPI_Port) return UInt16
-     with Inline;
+   procedure Send (This : in out SPI_Port; Data : UInt16);
 
    procedure Send (This : in out SPI_Port; Data : UInt8);
 
-   function Data (This : SPI_Port) return UInt8
+   function Data_Tx (This : SPI_Port) return UInt32
+     with Inline;
+
+   function Data_Rx (This : SPI_Port) return UInt32
      with Inline;
 
    function Is_Busy (This : SPI_Port) return Boolean
@@ -112,9 +177,6 @@ package STM32.SPI is
      with Inline;
 
    function Busy (This : SPI_Port) return Boolean
-     with Inline;
-
-   function Channel_Side_Indicated (This : SPI_Port) return Boolean
      with Inline;
 
    function Underrun_Indicated (This : SPI_Port) return Boolean
@@ -134,9 +196,25 @@ package STM32.SPI is
 
    procedure Clear_Overrun (This : SPI_Port);
 
-   procedure Reset_CRC (This : in out SPI_Port);
+   procedure Configure_CRC
+     (This   : SPI_Port;
+      Size   : HAL.SPI.SPI_Data_Size := HAL.SPI.Data_Size_8b;
+      Poly   : UInt32 := 16#107#);
+   --  The default 9-bit polynomial setting 0x107 corresponds to default 8-bit
+   --  setting of DSIZE. It is compatible with setting 0x07 used at some other
+   --  ST products with fixed length of the polynomial string where the most
+   --  significant bit of the string is always kept hidden.
+   --  Length of the polynomial is given by the most significant bit of the
+   --  value stored at this register. It has to be set greater than DSIZE.
+   --  CRC33_17 bit has to be set additionally with SRCPOLY register when DSIZE
+   --  is configured to maximum 32-bit or 16-bit size and CRC is enabled (to
+   --  keep polynomial length grater than data size).
 
    function CRC_Enabled (This : SPI_Port) return Boolean;
+
+   procedure Reset_CRC (This : in out SPI_Port);
+
+   function Is_Data_Frame_32bit (This : SPI_Port) return Boolean;
 
    function Is_Data_Frame_16bit (This : SPI_Port) return Boolean;
 
@@ -148,9 +226,10 @@ package STM32.SPI is
    --  CRC and data direction, among others.
 
    type UInt8_Buffer is array (Natural range <>) of UInt8
-     with Alignment => 2;
-   --  The alignment is set to 2 because we treat component pairs as half_word
-   --  values when sending/receiving in 16-bit mode.
+     with Alignment => 4;
+   --  The alignment is set to 4 because we treat four components as word
+   --  values when sending/receiving in 32-bit mode, so the alignment of 4
+   --  ensures that the address is divisible by 4.
 
    --  Blocking
 
@@ -168,6 +247,13 @@ package STM32.SPI is
    procedure Transmit
      (This   : in out SPI_Port;
       Data   : HAL.SPI.SPI_Data_16b;
+      Status : out HAL.SPI.SPI_Status;
+      Timeout : Natural := 1000);
+
+   overriding
+   procedure Transmit
+     (This   : in out SPI_Port;
+      Data   : HAL.SPI.SPI_Data_32b;
       Status : out HAL.SPI.SPI_Status;
       Timeout : Natural := 1000);
 
@@ -189,6 +275,13 @@ package STM32.SPI is
       Status  : out HAL.SPI.SPI_Status;
       Timeout : Natural := 1000);
 
+   overriding
+   procedure Receive
+     (This    : in out SPI_Port;
+      Data    : out HAL.SPI.SPI_Data_32b;
+      Status  : out HAL.SPI.SPI_Status;
+      Timeout : Natural := 1000);
+
    procedure Receive
      (This     : in out SPI_Port;
       Incoming : out UInt8);
@@ -206,7 +299,12 @@ package STM32.SPI is
 
    --  TODO: add the other higher-level HAL routines for interrupts and DMA
 
-   function Data_Register_Address
+   function Data_Tx_Register_Address
+     (This : SPI_Port)
+      return System.Address;
+   --  For DMA transfer
+
+   function Data_Rx_Register_Address
      (This : SPI_Port)
       return System.Address;
    --  For DMA transfer
@@ -217,6 +315,12 @@ private
 
    type SPI_Port (Periph : not null access Internal_SPI_Port) is
      limited new HAL.SPI.SPI_Port with null record;
+
+   procedure Send_Receive_32bit_Mode
+     (This     : in out SPI_Port;
+      Outgoing : UInt8_Buffer;
+      Incoming : out UInt8_Buffer;
+      Size     : Positive);
 
    procedure Send_Receive_16bit_Mode
      (This     : in out SPI_Port;
@@ -230,6 +334,10 @@ private
       Incoming : out UInt8_Buffer;
       Size     : Positive);
 
+   procedure Send_32bit_Mode
+     (This     : in out SPI_Port;
+      Outgoing : HAL.SPI.SPI_Data_32b);
+
    procedure Send_16bit_Mode
      (This     : in out SPI_Port;
       Outgoing : HAL.SPI.SPI_Data_16b);
@@ -237,6 +345,10 @@ private
    procedure Send_8bit_Mode
      (This     : in out SPI_Port;
       Outgoing : HAL.SPI.SPI_Data_8b);
+
+   procedure Receive_32bit_Mode
+     (This     : in out SPI_Port;
+      Incoming : out HAL.SPI.SPI_Data_32b);
 
    procedure Receive_16bit_Mode
      (This     : in out SPI_Port;

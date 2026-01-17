@@ -238,7 +238,7 @@ package body ICM42688P is
    -- Test --
    ----------
 
-   function Test (Device : ICM42688P_Device) return Boolean is
+   function Test (Device : in out ICM42688P_Device) return Boolean is
    begin
       return Device.Is_Init and then Test_Connection (Device);
    end Test;
@@ -247,11 +247,11 @@ package body ICM42688P is
    -- Test_Connection --
    ---------------------
 
-   function Test_Connection (Device : ICM42688P_Device) return Boolean is
+   function Test_Connection (Device : in out ICM42688P_Device) return Boolean is
       Who_Am_I : UInt8;
    begin
       --  Select Bank 0 where WHO_AM_I register is located
-      Select_Bank (ICM42688P_Device (Device), Bank_0);
+      Select_Bank (Device, Bank_0);
 
       Read_Register
         (Device   => Device,
@@ -420,7 +420,7 @@ package body ICM42688P is
    -------------------
 
    procedure Get_Motion_6
-     (Device : ICM42688P_Device;
+     (Device : in out ICM42688P_Device;
       Acc_X  : out Integer_16;
       Acc_Y  : out Integer_16;
       Acc_Z  : out Integer_16;
@@ -431,7 +431,7 @@ package body ICM42688P is
       Data : SPI_Data_8b (1 .. 12);
    begin
       --  Select Bank 0
-      Select_Bank (ICM42688P_Device (Device), Bank_0);
+      Select_Bank (Device, Bank_0);
 
       --  Read all 12 bytes starting from ACCEL_DATA_X1
       Read_Registers (Device, ICM42688P_REG_ACCEL_DATA_X1, Data);
@@ -450,7 +450,7 @@ package body ICM42688P is
    ---------------
 
    procedure Read_Gyro
-     (Device : ICM42688P_Device;
+     (Device : in out ICM42688P_Device;
       X      : out Integer_16;
       Y      : out Integer_16;
       Z      : out Integer_16)
@@ -458,7 +458,7 @@ package body ICM42688P is
       Data : SPI_Data_8b (1 .. 6);
    begin
       --  Select Bank 0
-      Select_Bank (ICM42688P_Device (Device), Bank_0);
+      Select_Bank (Device, Bank_0);
 
       --  Read 6 bytes starting from GYRO_DATA_X1
       Read_Registers (Device, ICM42688P_REG_GYRO_DATA_X1, Data);
@@ -474,7 +474,7 @@ package body ICM42688P is
    ----------------
 
    procedure Read_Accel
-     (Device : ICM42688P_Device;
+     (Device : in out ICM42688P_Device;
       X      : out Integer_16;
       Y      : out Integer_16;
       Z      : out Integer_16)
@@ -482,7 +482,7 @@ package body ICM42688P is
       Data : SPI_Data_8b (1 .. 6);
    begin
       --  Select Bank 0
-      Select_Bank (ICM42688P_Device (Device), Bank_0);
+      Select_Bank (Device, Bank_0);
 
       --  Read 6 bytes starting from ACCEL_DATA_X1
       Read_Registers (Device, ICM42688P_REG_ACCEL_DATA_X1, Data);
@@ -497,13 +497,13 @@ package body ICM42688P is
    -- Read_Temperature --
    ----------------------
 
-   function Read_Temperature (Device : ICM42688P_Device) return Float is
+   function Read_Temperature (Device : in out ICM42688P_Device) return Float is
       Data      : SPI_Data_8b (1 .. 2);
       Temp_Raw  : Integer_16;
       Temp_C    : Float;
    begin
       --  Select Bank 0
-      Select_Bank (ICM42688P_Device (Device), Bank_0);
+      Select_Bank (Device, Bank_0);
 
       --  Read temperature registers
       Read_Registers (Device, ICM42688P_REG_TEMP_DATA1, Data);
@@ -522,11 +522,11 @@ package body ICM42688P is
    -- Data_Ready --
    ----------------
 
-   function Data_Ready (Device : ICM42688P_Device) return Boolean is
+   function Data_Ready (Device : in out ICM42688P_Device) return Boolean is
       Status : UInt8;
    begin
       --  Select Bank 0
-      Select_Bank (ICM42688P_Device (Device), Bank_0);
+      Select_Bank (Device, Bank_0);
 
       --  Read INT_STATUS register
       Read_Register (Device, ICM42688P_REG_INT_STATUS, Status);

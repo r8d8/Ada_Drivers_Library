@@ -61,6 +61,13 @@ package STM32.SPI.DMA is
       Timeout : Natural := 1000);
 
    overriding
+   procedure Transmit
+     (This   : in out SPI_Port_DMA;
+      Data   : HAL.SPI.SPI_Data_32b;
+      Status : out HAL.SPI.SPI_Status;
+      Timeout : Natural := 1000);
+
+   overriding
    procedure Receive
      (This    : in out SPI_Port_DMA;
       Data    : out HAL.SPI.SPI_Data_8b;
@@ -71,6 +78,13 @@ package STM32.SPI.DMA is
    procedure Receive
      (This    : in out SPI_Port_DMA;
       Data    : out HAL.SPI.SPI_Data_16b;
+      Status  : out HAL.SPI.SPI_Status;
+      Timeout : Natural := 1000);
+
+   overriding
+   procedure Receive
+     (This    : in out SPI_Port_DMA;
+      Data    : out HAL.SPI.SPI_Data_32b;
       Status  : out HAL.SPI.SPI_Status;
       Timeout : Natural := 1000);
 

@@ -52,11 +52,14 @@ with Ada.Real_Time; use Ada.Real_Time;
 
 procedure Blinky is
 
-   Period : constant Time_Span := Milliseconds (200);  -- arbitrary
+   Period : constant Time_Span := Milliseconds (100);  -- arbitrary
 
    Next_Release : Time := Clock;
 
 begin
+   --  Enable debug support early to prevent ST-Link disconnect
+   STM32.Board.Enable_Debug_Support;
+   
    STM32.Board.Initialize_LEDs;
 
    loop

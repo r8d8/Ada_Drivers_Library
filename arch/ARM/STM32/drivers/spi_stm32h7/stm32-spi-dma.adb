@@ -58,16 +58,16 @@ package body STM32.SPI.DMA is
       if not Compatible_Alignments (This.TX_DMA.Controller.all,
                                     This.TX_DMA.Stream,
                                     Source,
-                                    This.Data_Register_Address)
+                                    This.Data_Tx_Register_Address)
       then
          raise Program_Error with "Incompatible alignments";
       end if;
 
       --  Enable TX DMA
-      This.Periph.CR2.TXDMAEN := True;
+      This.Periph.CFG1.TXDMAEN := True;
 
       This.TX_DMA.Start_Transfer (Source      => Source,
-                                  Destination => This.Data_Register_Address,
+                                  Destination => This.Data_Tx_Register_Address,
                                   Data_Count  => Data_Count);
 
       This.TX_DMA.Wait_For_Completion (DMA_Status);
@@ -162,6 +162,29 @@ package body STM32.SPI.DMA is
       end if;
    end Transmit;
 
+   --------------
+   -- Transmit --
+   --------------
+
+   overriding procedure Transmit
+     (This   : in out SPI_Port_DMA;
+      Data   : HAL.SPI.SPI_Data_32b;
+      Status : out HAL.SPI.SPI_Status;
+      Timeout : Natural := 1000)
+   is
+   begin
+      if This.TX_DMA = null or else Data'Length < This.Threshold then
+         --  Fallback to polling implementation
+         Transmit (Parent (This), Data, Status, Timeout);
+      else
+         Transmit_Common (This,
+                          Data (Data'First)'Address,
+                          Data'Length,
+                          Status,
+                          Timeout);
+      end if;
+   end Transmit;
+
    -------------
    -- Receive --
    -------------
@@ -184,6 +207,21 @@ package body STM32.SPI.DMA is
    overriding procedure Receive
      (This    : in out SPI_Port_DMA;
       Data    : out HAL.SPI.SPI_Data_16b;
+      Status  : out HAL.SPI.SPI_Status;
+      Timeout : Natural := 1000)
+   is
+   begin
+      --  Not implemented, fallback to polling implementation
+      Receive (Parent (This), Data, Status, Timeout);
+   end Receive;
+
+   -------------
+   -- Receive --
+   -------------
+
+   overriding procedure Receive
+     (This    : in out SPI_Port_DMA;
+      Data    : out HAL.SPI.SPI_Data_32b;
       Status  : out HAL.SPI.SPI_Status;
       Timeout : Natural := 1000)
    is

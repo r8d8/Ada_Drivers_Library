@@ -38,6 +38,8 @@ with HAL.Real_Time_Clock; use HAL.Real_Time_Clock;
 
 package body STM32.RTC is
 
+   use type STM32_SVD.UInt2;
+
    procedure Disable_Write_Protection;
    procedure Enable_Write_Protection;
 
@@ -96,25 +98,25 @@ package body STM32.RTC is
       --  24H format
       TR.PM := False;
 
-      TR.HT := UInt2 (Time.Hour / 10);
-      TR.HU := UInt4 (Time.Hour mod 10);
+      TR.HT := RTC_TR_HT_Field (Time.Hour / 10);
+      TR.HU := RTC_TR_HU_Field (Time.Hour mod 10);
 
-      TR.MNT := UInt3 (Time.Min / 10);
-      TR.MNU := UInt4 (Time.Min mod 10);
+      TR.MNT := RTC_TR_MNT_Field (Time.Min / 10);
+      TR.MNU := RTC_TR_MNU_Field (Time.Min mod 10);
 
-      TR.ST := UInt3 (Time.Sec / 10);
-      TR.SU := UInt4 (Time.Sec mod 10);
+      TR.ST := RTC_TR_ST_Field (Time.Sec / 10);
+      TR.SU := RTC_TR_SU_Field (Time.Sec mod 10);
 
-      DR.YT := UInt4 (Date.Year / 10);
-      DR.YU := UInt4 (Date.Year mod 10);
+      DR.YT := RTC_DR_YT_Field (Date.Year / 10);
+      DR.YU := RTC_DR_YU_Field (Date.Year mod 10);
 
-      DR.WDU := UInt3 (RTC_Day_Of_Week'Enum_Rep (Date.Day_Of_Week));
+      DR.WDU := RTC_DR_WDU_Field (RTC_Day_Of_Week'Enum_Rep (Date.Day_Of_Week));
 
       DR.MT := (RTC_Month'Enum_Rep (Date.Month) / 10) /= 0;
-      DR.MU := UInt4 (RTC_Month'Enum_Rep (Date.Month) mod 10);
+      DR.MU := RTC_DR_MU_Field (RTC_Month'Enum_Rep (Date.Month) mod 10);
 
-      DR.DT := UInt2 (Date.Day / 10);
-      DR.DU := UInt4 (Date.Day mod 10);
+      DR.DT := RTC_DR_DT_Field (Date.Day / 10);
+      DR.DU := RTC_DR_DU_Field (Date.Day mod 10);
 
       --  TR and DR are shadow registers, we have to write them all at once
       RTC_Periph.RTC_TR := TR;
@@ -184,7 +186,7 @@ package body STM32.RTC is
       Ret.Day_Of_Week := RTC_Day_Of_Week'Enum_Val (DR.WDU);
       Ret.Day := RTC_Day (Integer (DR.DT) * 10 + Integer (DR.DU));
       Ret.Year := RTC_Year (DR.YT) * 10 + RTC_Year (DR.YU);
-      Ret.Month := RTC_Month'Enum_Val ((if DR.MT then 10 else 0) + DR.MU);
+      Ret.Month := RTC_Month'Enum_Val ((if DR.MT then 10 else 0) + Natural (DR.MU));
       return Ret;
    end Get_Date;
 
@@ -208,8 +210,8 @@ package body STM32.RTC is
       end loop;
 
       --  Select LSI as source clock
-      RCC_Periph.BDCR.RTCSRC.Val := 2#10#;
-      if RCC_Periph.BDCR.RTCSRC.Val /= 2#10# then
+      RCC_Periph.BDCR.RTCSRC := 2#10#;
+      if STM32_SVD.UInt2 (RCC_Periph.BDCR.RTCSRC) /= 2#10# then
          raise Program_Error with "Cannot select RTC clock";
       end if;
 

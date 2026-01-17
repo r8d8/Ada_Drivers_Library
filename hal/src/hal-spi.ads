@@ -40,11 +40,14 @@ package HAL.SPI is
 
    type SPI_Data_Size is
      (Data_Size_8b,
-      Data_Size_16b);
+      Data_Size_16b,
+      Data_Size_32b);
 
    type SPI_Data_8b is array (Natural range <>) of UInt8;
 
    type SPI_Data_16b is array (Natural range <>) of UInt16;
+
+   type SPI_Data_32b is array (Natural range <>) of UInt32;
 
    type SPI_Port is limited interface;
 
@@ -68,6 +71,14 @@ package HAL.SPI is
      with
        Pre'Class => Data_Size (This) = Data_Size_16b;
 
+   procedure Transmit
+     (This    : in out SPI_Port;
+      Data    : SPI_Data_32b;
+      Status  : out SPI_Status;
+      Timeout : Natural := 1000) is abstract
+     with
+       Pre'Class => Data_Size (This) = Data_Size_32b;
+
    procedure Receive
      (This    : in out SPI_Port;
       Data    : out SPI_Data_8b;
@@ -83,5 +94,13 @@ package HAL.SPI is
       Timeout : Natural := 1000) is abstract
      with
        Pre'Class => Data_Size (This) = Data_Size_16b;
+
+   procedure Receive
+     (This    : in out SPI_Port;
+      Data    : out SPI_Data_32b;
+      Status  : out SPI_Status;
+      Timeout : Natural := 1000) is abstract
+     with
+       Pre'Class => Data_Size (This) = Data_Size_32b;
 
 end HAL.SPI;

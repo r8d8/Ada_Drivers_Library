@@ -39,14 +39,12 @@ package body Matek_H743_Slim_V3.LED is
    ----------------
 
    procedure Initialize is
-      Config : GPIO_Port_Configuration;
+      Config : GPIO_Port_Configuration := (Mode => Mode_Out,
+                                           Output_Type => Push_Pull,
+                                           Speed => Speed_Low,
+                                           Resistors => Floating);
    begin
       Enable_Clock (All_LEDs);
-
-      Config.Mode        := Mode_Out;
-      Config.Output_Type := Push_Pull;
-      Config.Speed       := Speed_Low;
-      Config.Resistors   := Floating;
 
       Configure_IO (All_LEDs, Config);
 

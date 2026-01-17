@@ -453,39 +453,41 @@ package STM32.Device is
    procedure Reset (This : I2C_Port'Class);
    procedure Reset (This : I2C_Port_Id);
 
-   Internal_SPI_1 : aliased Internal_SPI_Port
-     with Import, Volatile, Address => SPI1_Base;
-   SPI_1 : aliased SPI_Port (Internal_SPI_1'Access);
+   --  Note: SPI temporarily disabled during H7 port
+   --  Internal_SPI_1 : aliased Internal_SPI_Port
+   --    with Import, Volatile, Address => SPI1_Base;
+   --  SPI_1 : aliased SPI_Port (Internal_SPI_1'Access);
 
-   Internal_SPI_2 : aliased Internal_SPI_Port
-     with Import, Volatile, Address => SPI2_Base;
-   SPI_2 : aliased SPI_Port (Internal_SPI_2'Access);
+   --  Internal_SPI_2 : aliased Internal_SPI_Port
+   --    with Import, Volatile, Address => SPI2_Base;
+   --  SPI_2 : aliased SPI_Port (Internal_SPI_2'Access);
 
-   Internal_SPI_3 : aliased Internal_SPI_Port
-     with Import, Volatile, Address => SPI3_Base;
-   SPI_3 : aliased SPI_Port (Internal_SPI_3'Access);
+   --  Internal_SPI_3 : aliased Internal_SPI_Port
+   --    with Import, Volatile, Address => SPI3_Base;
+   --  SPI_3 : aliased SPI_Port (Internal_SPI_3'Access);
 
-   Internal_SPI_4 : aliased Internal_SPI_Port
-     with Import, Volatile, Address => SPI4_Base;
-   SPI_4 : aliased SPI_Port (Internal_SPI_4'Access);
+   --  Internal_SPI_4 : aliased Internal_SPI_Port
+   --    with Import, Volatile, Address => SPI4_Base;
+   --  SPI_4 : aliased SPI_Port (Internal_SPI_4'Access);
 
-   Internal_SPI_5 : aliased Internal_SPI_Port
-     with Import, Volatile, Address => SPI5_Base;
-   SPI_5 : aliased SPI_Port (Internal_SPI_5'Access);
+   --  Internal_SPI_5 : aliased Internal_SPI_Port
+   --    with Import, Volatile, Address => SPI5_Base;
+   --  SPI_5 : aliased SPI_Port (Internal_SPI_5'Access);
 
-   Internal_SPI_6 : aliased Internal_SPI_Port
-     with Import, Volatile, Address => SPI6_Base;
-   SPI_6 : aliased SPI_Port (Internal_SPI_6'Access);
+   --  Internal_SPI_6 : aliased Internal_SPI_Port
+   --    with Import, Volatile, Address => SPI6_Base;
+   --  SPI_6 : aliased SPI_Port (Internal_SPI_6'Access);
 
-   SPI_1_DMA : aliased SPI_Port_DMA (Internal_SPI_1'Access);
-   SPI_2_DMA : aliased SPI_Port_DMA (Internal_SPI_2'Access);
-   SPI_3_DMA : aliased SPI_Port_DMA (Internal_SPI_3'Access);
-   SPI_4_DMA : aliased SPI_Port_DMA (Internal_SPI_4'Access);
-   SPI_5_DMA : aliased SPI_Port_DMA (Internal_SPI_5'Access);
-   SPI_6_DMA : aliased SPI_Port_DMA (Internal_SPI_6'Access);
+   --  Note: SPI DMA temporarily disabled during H7 port
+   --  SPI_1_DMA : aliased SPI_Port_DMA (Internal_SPI_1'Access);
+   --  SPI_2_DMA : aliased SPI_Port_DMA (Internal_SPI_2'Access);
+   --  SPI_3_DMA : aliased SPI_Port_DMA (Internal_SPI_3'Access);
+   --  SPI_4_DMA : aliased SPI_Port_DMA (Internal_SPI_4'Access);
+   --  SPI_5_DMA : aliased SPI_Port_DMA (Internal_SPI_5'Access);
+   --  SPI_6_DMA : aliased SPI_Port_DMA (Internal_SPI_6'Access);
 
-   procedure Enable_Clock (This : SPI_Port'Class);
-   procedure Reset (This : SPI_Port'Class);
+   --  procedure Enable_Clock (This : SPI_Port'Class);
+   --  procedure Reset (This : SPI_Port'Class);
 
    Internal_I2S_1 : aliased Internal_I2S_Port
      with Import, Volatile, Address => SPI1_Base;
@@ -507,8 +509,9 @@ package STM32.Device is
    I2S_5 : aliased I2S_Port (Internal_I2S_5'Access, Extended => False);
    I2S_6 : aliased I2S_Port (Internal_I2S_6'Access, Extended => False);
 
-   procedure Enable_Clock (This : I2S_Port);
-   procedure Reset (This : in out I2S_Port);
+   --  I2S clock functions temporarily disabled - SPI/I2S drivers excluded
+   --  procedure Enable_Clock (This : I2S_Port);
+   --  procedure Reset (This : in out I2S_Port);
 
    Timer_1 : aliased Timer with Volatile, Address => TIM1_Base;
    pragma Import (Ada, Timer_1);
@@ -625,7 +628,7 @@ package STM32.Device is
    procedure Enable_DCMI_Clock;
    procedure Reset_DCMI;
 
-   RTC : aliased RTC_Device;
+   --  RTC : aliased RTC_Device;  -- Temporarily disabled
 
 private
 

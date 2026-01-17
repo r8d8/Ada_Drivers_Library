@@ -34,10 +34,10 @@
 with Matek_H743_Slim_V3; use Matek_H743_Slim_V3;
 with STM32.Device;       use STM32.Device;
 with STM32.GPIO;         use STM32.GPIO;
-with STM32.SPI;          use STM32.SPI;
+--  with STM32.SPI;          use STM32.SPI;
 
-with ICM42688P;          use ICM42688P;
-with Ravenscar_Time;
+--  with ICM42688P;          use ICM42688P;
+--  with Ravenscar_Time;
 
 package STM32.Board is
    pragma Elaborate_Body;
@@ -61,30 +61,36 @@ package STM32.Board is
    procedure All_LEDs_Off with Inline;
    procedure All_LEDs_On  with Inline;
 
-   ---------
-   -- SPI --
-   ---------
+   procedure Enable_Debug_Support;
+   --  Enable debugging in all power modes (Sleep/Stop/Standby) for all domains.
+   --  Call this during startup to prevent ST-Link disconnect and
+   --  "can't read device ID from ROM table" errors.
 
-   --  SPI1 for primary IMU (ICM42688P)
-   SPI_1_Port : SPI_Port renames SPI_1;
+   --  Note: SPI and IMU support temporarily disabled while porting H7-specific drivers
+   --  ---------
+   --  -- SPI --
+   --  ---------
 
-   ---------
-   -- IMU --
-   ---------
+   --  --  SPI1 for primary IMU (ICM42688P)
+   --  SPI_1_Port : SPI_Port renames SPI_1;
 
-   --  ICM42688P on SPI1
-   ICM_Device : ICM42688P_Device
-     (Port => SPI_1_Port'Access,
-      CS   => IMU1_CS'Access,
-      Time => Ravenscar_Time.Delays'Access);
+   --  ---------
+   --  -- IMU --
+   --  ---------
 
-   --  Initialize SPI and GPIO for IMU
-   procedure Initialize_IMU_IO;
+   --  --  ICM42688P on SPI1
+   --  ICM_Device : ICM42688P_Device
+   --    (Port => SPI_1_Port'Access,
+   --     CS   => IMU1_CS'Access,
+   --     Time => Ravenscar_Time.Delays);
 
-   --  Initialize the ICM42688P sensor
-   procedure Initialize_IMU;
+   --  --  Initialize SPI and GPIO for IMU
+   --  procedure Initialize_IMU_IO;
 
-   --  Test if IMU is responding
-   function Test_IMU return Boolean;
+   --  --  Initialize the ICM42688P sensor
+   --  procedure Initialize_IMU;
+
+   --  --  Test if IMU is responding
+   --  function Test_IMU return Boolean;
 
 end STM32.Board;

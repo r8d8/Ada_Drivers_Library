@@ -197,10 +197,10 @@ package ICM42688P is
    procedure Initialize (Device : in out ICM42688P_Device);
 
    --  Test if the ICM42688P is initialized and connected
-   function Test (Device : ICM42688P_Device) return Boolean;
+   function Test (Device : in out ICM42688P_Device) return Boolean;
 
    --  Test connection by reading WHO_AM_I register
-   function Test_Connection (Device : ICM42688P_Device) return Boolean;
+   function Test_Connection (Device : in out ICM42688P_Device) return Boolean;
 
    --  Perform device reset (soft reset)
    procedure Reset (Device : in out ICM42688P_Device);
@@ -233,7 +233,7 @@ package ICM42688P is
 
    --  Get raw 6-axis motion sensor readings (accel/gyro)
    procedure Get_Motion_6
-     (Device : ICM42688P_Device;
+     (Device : in out ICM42688P_Device;
       Acc_X  : out Integer_16;
       Acc_Y  : out Integer_16;
       Acc_Z  : out Integer_16;
@@ -243,23 +243,23 @@ package ICM42688P is
 
    --  Read gyroscope data only
    procedure Read_Gyro
-     (Device : ICM42688P_Device;
+     (Device : in out ICM42688P_Device;
       X      : out Integer_16;
       Y      : out Integer_16;
       Z      : out Integer_16);
 
    --  Read accelerometer data only
    procedure Read_Accel
-     (Device : ICM42688P_Device;
+     (Device : in out ICM42688P_Device;
       X      : out Integer_16;
       Y      : out Integer_16;
       Z      : out Integer_16);
 
    --  Read temperature sensor (in Celsius)
-   function Read_Temperature (Device : ICM42688P_Device) return Float;
+   function Read_Temperature (Device : in out ICM42688P_Device) return Float;
 
    --  Check if new data is available
-   function Data_Ready (Device : ICM42688P_Device) return Boolean;
+   function Data_Ready (Device : in out ICM42688P_Device) return Boolean;
 
 private
 
